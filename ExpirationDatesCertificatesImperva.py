@@ -14,8 +14,8 @@ import datetime
 import json
 
 #Credentials
-IMPERVA_API_ID = "XXXXX"
-IMPERVA_API_KEY = "XXXXXXXXXXXXXXXXXXXXXXXXXXX"
+IMPERVA_API_ID = "XXXX"
+IMPERVA_API_KEY = "XXXXXXXXXXXXXXXXX"
 
 IMPERVA_headers = {
 	"x-API-key": IMPERVA_API_KEY,
@@ -49,34 +49,45 @@ def getImpervaCertInfo (siteid):
 		jsonresp = json.dumps(response.json())
 		response_dict = json.loads(jsonresp)
 
-		#Esta llamada de API tiene doble valor en profundidad, por lo que los recorro con dos bucles (i,z de 0 a longitud de parámetros)
-		for i in range(len(response_dict["data"])):
-			for z in range(len(response_dict["data"][i]["sans"])):
-				# Obtengo TODA LA INFO DEL IMPERVA CERT (según su estado guardo ciertos parámetros)
-				if response_dict["data"][i]["sans"][z]["status"]=="PUBLISHED":
-					impervaCert = "Active"
-					impervaCertStatus = "Published"
-					expDateImperva = response_dict["data"][i]["sans"][z]["expirationDate"]
-					expDateImperva = datetime.datetime.fromtimestamp(int(expDateImperva / 1000)).strftime('%d/%m/%Y %H:%M:%S')
-					hostTxt = response_dict["data"][0]["sans"][0]["approverFqdn"]
-					txt = response_dict["data"][0]["sans"][0]["verificationCode"]
-					txtDate = "-"
-				elif response_dict["data"][i]["sans"][z]["status"]=="PENDING_USER_ACTION":
-					impervaCert = "Active"
-					impervaCertStatus = "TXT must be added in DNS"
-					expDateImperva = "-"
-					hostTxt = response_dict["data"][0]["sans"][0]["approverFqdn"]
-					txt = response_dict["data"][0]["sans"][0]["verificationCode"]
-					txtDate = "txtexpdate"
-				else:
-					#Estado de certificado de Imperva distinto de 'Published' y 'Pending_User_Action' (chequear manualmente)
-					impervaCert = "Unknown"
-					impervaCertStatus = "Unknown Imperva Status"
-					expDateImperva = "-"
-					hostTxt = "-"
-					txt = "-"
-					txtDate = "-"
-			# Salida de función que imprimiré en la función ppal a continuación del resto de info (no imprimo aquí por formato)
+		if response_dict["data"]:
+			#Esta llamada de API tiene doble valor en profundidad, por lo que los recorro con dos bucles (i,z de 0 a longitud de parámetros)
+			for i in range(len(response_dict["data"])):
+				for z in range(len(response_dict["data"][i]["sans"])):
+					# Obtengo TODA LA INFO DEL IMPERVA CERT (según su estado guardo ciertos parámetros)
+					if response_dict["data"][i]["sans"][z]["status"]=="PUBLISHED":
+						impervaCert = "Active"
+						impervaCertStatus = "Published"
+						expDateImperva = response_dict["data"][i]["sans"][z]["expirationDate"]
+						expDateImperva = datetime.datetime.fromtimestamp(int(expDateImperva / 1000)).strftime('%d/%m/%Y %H:%M:%S')
+						hostTxt = response_dict["data"][0]["sans"][0]["approverFqdn"]
+						txt = response_dict["data"][0]["sans"][0]["verificationCode"]
+						txtDate = "-"
+					elif response_dict["data"][i]["sans"][z]["status"]=="PENDING_USER_ACTION":
+						impervaCert = "Active"
+						impervaCertStatus = "TXT must be added in DNS"
+						expDateImperva = "-"
+						hostTxt = response_dict["data"][0]["sans"][0]["approverFqdn"]
+						txt = response_dict["data"][0]["sans"][0]["verificationCode"]
+						txtDate = "txtexpdate"
+					else:
+						#Estado de certificado de Imperva distinto de 'Published' y 'Pending_User_Action' (chequear manualmente)
+						impervaCert = "Unknown"
+						impervaCertStatus = "Unknown Imperva Status"
+						expDateImperva = "-"
+						hostTxt = "-"
+						txt = "-"
+						txtDate = "-"
+				# Salida de función que imprimiré en la función ppal a continuación del resto de info (no imprimo aquí por formato)
+				impervaCertInfo = impervaCert + "," + impervaCertStatus + "," + str(expDateImperva) + "," + hostTxt + "," + txt + "," + txtDate
+				return impervaCertInfo
+		else:
+			# Sin ningún certificado (datos vacíos, salida None)
+			impervaCert = "Not active"
+			impervaCertStatus = "Not published"
+			expDateImperva = "-"
+			hostTxt = "-"
+			txt = "-"
+			txtDate = "-"
 			impervaCertInfo = impervaCert + "," + impervaCertStatus + "," + str(expDateImperva) + "," + hostTxt + "," + txt + "," + txtDate
 			return impervaCertInfo
 
