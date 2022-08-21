@@ -34,7 +34,6 @@ Para la [Scheduled Renewal Custom Certificate] acudimos a la herramienta de tick
   
  ----------------------------------------------------------------------------------
   A mejorar:
-  - Salida [Imperva Certificate]: La llamada a response_dict["data"] en casos sin certificado devuelve el conjunto vacío "None".
-  Queda claro que equivale al estado "Not Active" y sus estados posteriores vacíos. En futuro mejorar esa salida desde el propio script.
-  Hasta entonces se puede editar fácilmente manualmente con uso de filtros de estado ya que es similar el estado "None" al de "Not Active"
+  - HECHO --> Salida [Imperva Certificate]: La llamada a response_dict["data"] en casos sin certificado devuelve el conjunto vacío "None".
+  Equivale al estado "Not Active" y sus estados posteriores vacíos. En futuro mejorar esa salida desde el propio script. --> HECHO en el commit de hoy
 
